@@ -5,7 +5,6 @@ import numba
 from numba import jit
 from scipy.spatial import cKDTree
 from math import sin, cos, pi
-from numpy import zeros
 import pygeostat as gs
 from popdiff import population_difference_mod as popdiff_mod
 
@@ -315,7 +314,7 @@ def calc_cluster_stats(mvdata, locations, clusdefs, nnears):
 
 def label_cluster_stats(mvdata, locations, clusdefs, nnears, anisos, ax, top=True, fontsize=7,
                         coords=None, **kwargs):
-    from rmutils.plotting.plotting import label_subplot
+    from functions import label_subplot
     if hasattr(mvdata, 'values'):
         mvdata = mvdata.values
     if hasattr(locations, 'values'):
