@@ -288,10 +288,10 @@ def simple_density_calc(x, y, ncomp, niter=50, seed=69069):
         x = x.values
     if hasattr(y, 'values'):
         y = y.values
-    sample = np.c_[x, y].T
+    sample = np.c_[x, y]
     gmm = GaussianMixture(n_components=ncomp, n_init=niter)
     gmm = gmm.fit(sample)
-    return gmm.score_samples(sample)
+    return np.exp(gmm.score_samples(sample))
 
 
 def standardize(data, variables=None):
