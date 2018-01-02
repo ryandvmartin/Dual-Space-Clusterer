@@ -299,7 +299,7 @@ def total_local_entropy(xyzlocs, clustering, knears=25):
                 if cat == lcat:
                     count += 1
             pks[icat] = np.maximum(count / knears, 1.0e-10)
-        hsum += np.sum(pks * np.log(1.0 / pks))
+        hsum += np.sum(pks * np.log(pks))
     return hsum
 
 
