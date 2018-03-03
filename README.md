@@ -1,3 +1,5 @@
+[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/dektoud/Dual-Space-Clusterer/master?filepath=synthetic_example_agglomclus.ipynb)
+
 # Dual-Space-Clusterer
 Pure(ish) python implementation of the dual-space clustering algorithm.
 
