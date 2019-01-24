@@ -1,8 +1,8 @@
 # (c) Ryan Martin 2017 under MIT license
 
 import numpy as np
-import pygeostat as gs
 import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
 
 
 class AutocorrClus:
@@ -26,6 +26,7 @@ class AutocorrClus:
 
     .. codeauthor:: Ryan Martin - 17-10-2017
     """
+
     def __init__(self, mvdata, locations, target_nclus=None, clustermethod='kmeans',
                  autocor='getis', nnears=45, aniso_search=(0, 0, 0, 1, 1)):
         # parse the input, make sure arrays are nvar x ndata dimensioned
@@ -56,23 +57,25 @@ class AutocorrClus:
         passed to the constructor of this class
         """
         from pandas import DataFrame
-        import pygeostat as gs
         from autocorr import autocorr
 
         # initialize the spatial locations for autocorrelation
         autocorr.initautocorr(self.locations, self.aniso_search)
         # get the autocorrelation dataset
         tdata = autocorr.localautocorrelation(self.autocor, 1, self.nnears, self.mvdata).T
-
-        tcols = ['T%i' % i for i in range(tdata.shape[1])]
-        tdf = DataFrame(tdata, columns=tcols)
-        tdata, _ = gs.nscore(tdf, tcols)
-        tdata = tdata.values
         if target_nclus is not None:
             self.target_nclus = target_nclus
         assert self.target_nclus is not None, " set a number of clusters ! "
         clusdefs = cluster(self.target_nclus, tdata, algorithm=self.clustermethod)
         return clusdefs
+
+
+def get_catcmap(cmap, ncat):
+    rgb_fr_contmap = []
+    cm = plt.cm.get_cmap(cmap)
+    for num in range(ncat):
+        rgb_fr_contmap.append(cm((num + 0.5) / (ncat)))
+    return ListedColormap(rgb_fr_contmap, name=cmap)
 
 
 class MDSPlot:
@@ -84,6 +87,7 @@ class MDSPlot:
         embedding (int): the number of dimensions to embed the coordinates in
         randstate (int): the random state for embedding
     """
+
     def __init__(self, data, mtype='MDS', embedding=2, randstate=69069, verbose=False,
                  autofit=True):
         self.data = data
@@ -122,10 +126,10 @@ class MDSPlot:
         """
         Plotting for the MDS coordinates and the probabilities or categories
         """
-        gs.set_style(pltstyle)
         coords = self.coords
         # setup the figure
-        fig, ax, cax = gs.setup_plot(ax, cbar=cbar, cax=cax, figsize=figsize, grid=grid)
+        if ax is None:
+            _, ax = plt.subplots(figsize=figsize)
         if vlim is None and colors is not None and not isinstance(colors, str):
             vlim = (np.min(colors), np.max(colors))
         else:
@@ -139,13 +143,10 @@ class MDSPlot:
         if catdata:
             clusids = np.unique(colors)
             ncat = len(clusids)
-            if cmap in gs.cat_palettes:
-                cmap = gs.get_palette(cmap, ncat)
-            else:
-                cmap = gs.catcmapfromcontinuous(cmap, ncat)
+            cmap = get_catcmap(cmap, ncat)
             dump = colors.copy()
             for i in range(ncat):
-                dump[colors == clusids[i]] = np.arange(ncat)[i]
+                dump[colors == clusids[i]] = i
             colors = dump
             ax.scatter(coords[:, 0], coords[:, 1], c=colors, cmap=cmap, s=s, lw=lw,
                        label=legstr)
@@ -157,12 +158,8 @@ class MDSPlot:
 
         # plot continous data with a colorbar
         else:
-            plot = ax.scatter(coords[:, 0], coords[:, 1], c=colors, s=s, lw=lw, cmap=cmap,
-                              vmin=vlim[0], vmax=vlim[1])
-            if cbar:
-                vlims, ticklocs, ticklabels = gs.get_contcbarargs(colors, 2, vlim, nticks=8)
-                cbar = fig.colorbar(plot, cax=cax, ticks=ticklocs)
-                cbar.ax.set_yticklabels(ticklabels, ha='left')
+            ax.scatter(coords[:, 0], coords[:, 1], c=colors, s=s, lw=lw, cmap=cmap,
+                       vmin=vlim[0], vmax=vlim[1])
 
         applytickpad(ax, 1)
         addgridtoplt(ax)
@@ -337,5 +334,3 @@ def applylabelpad(ax, labelpad):
 
 def applytickpad(ax, tickpad):
     ax.tick_params(axis='both', which='major', pad=tickpad)
-
-

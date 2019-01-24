@@ -2,11 +2,10 @@
 
 import numpy as np
 import numba
-from numba import jit
 from scipy.spatial import cKDTree
 from math import sin, cos, pi
-import pygeostat as gs
 from popdiff import population_difference_mod as popdiff_mod
+
 
 class AgglomCluster:
     """
@@ -31,6 +30,7 @@ class AgglomCluster:
 
     .. codeauthor:: Ryan Martin - 2017
     """
+
     def __init__(self, mvdata, locations, niter=100, nnears=10, stage1merge=5, seed=69069,
                  aniso=(0, 0, 0, 1, 1)):
         """
@@ -95,19 +95,14 @@ class AgglomCluster:
 
         # generate the random seeds
         np.random.RandomState(seed)
-        seeds = np.random.randint(20000, high=50000, size=niter)
+        iterable = np.random.randint(20000, high=50000, size=niter)
         self.clusterings = np.zeros((ndata, niter))
         irun = 0
-        if verbose:
-            iterable = gs.log_progress(seeds)
-        else:
-            iterable = seeds
         for seed in iterable:
             args = (mvdata, locations, nnears, stage1merge, target_nclus,
                     aniso, int(seed), minprop, maxprop)
             self.clusterings[:, irun] = agglomclus_single(*args)
             irun += 1
-
 
     def predict(self, target_nclus=None, method='ward'):
         """
@@ -230,8 +225,12 @@ def get_rot_coords(a, r, coords):
     """
     arads = np.deg2rad(a)
     rotmat = np.zeros((3, 3))
-    sina = sin(arads[0]); sinb = sin(arads[1]); sint = sin(arads[2])
-    cosa = cos(arads[0]); cosb = cos(arads[1]); cost = cos(arads[2])
+    sina = sin(arads[0])
+    sinb = sin(arads[1])
+    sint = sin(arads[2])
+    cosa = cos(arads[0])
+    cosb = cos(arads[1])
+    cost = cos(arads[2])
     # Construct the rotation matrix:
     r1 = r[0] / r[1]
     r2 = r[0] / r[2]
@@ -270,6 +269,7 @@ def total_wcss(clustering, mvdata):
         for j in range(dslice.shape[0]):
             wcss[i] += sqr_euclidean(cx, dslice[j, :])
     return wcss.sum()
+
 
 @numba.jit
 def total_local_entropy(xyzlocs, clustering, knears=25):
@@ -358,4 +358,3 @@ def get_hierarchy(pairingsmatrix, target_nclus, method='ward'):
     linkage = cluster.hierarchy.linkage(pairingsmatrix, method=method)
     clusdefs = cluster.hierarchy.fcluster(linkage, target_nclus, criterion='maxclust')
     return clusdefs
-
