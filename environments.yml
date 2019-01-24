@@ -1,0 +1,13 @@
+name: Dual-Space-Clusterer
+channels:
+  - conda-forge
+dependencies:
+  - python==3.6
+  - numpy
+  - matplotlib
+  - pandas
+  - numpy
+  - numba
+  - scipy
+  - scikit_learn
+  - seaborn
