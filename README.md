@@ -10,3 +10,5 @@ The included `.pyd` files are built for windows 10 and python 3.6.3 64 bit with 
 ~NOTE: the included `*.ipynb` (and associated functions) requires the latest [`pygeostat`](http://www.ccgalberta.com/pygeostat/welcome.html)~ The dependency on pygeostat is removed. Please contact me if this is not the case!
 
 This work is associated with the publication "Towards justifying unsupervised stationary decisions for geostatistical modeling: Ensemble spatial and multivariate clustering with geomodeling specific clustering metrics’" by Ryan Martin and Jeff Boisvert of the CCG at the University of Alberta, Edmonton, Canada
+
+NOTE: this module is superceeded by https://github.com/dektoud/spatialcluster
